@@ -11,11 +11,11 @@
         android:theme="@style/Theme.WorldClock">
         <activity
             android:name=".MainActivity2"
-            android:label="All Available Cities"
+            android:label="@string/actionbar_title2"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MainActivity"
-            android:label="Favorites">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

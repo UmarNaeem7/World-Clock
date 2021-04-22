@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getSupportActionBar().setTitle(R.string.actionbar_title);
+
         imagesArr = getResources().obtainTypedArray(R.array.images);    //get flag images in typed array
 
         timeZones = getResources().getStringArray(R.array.timezones);   //get timezones in string array
