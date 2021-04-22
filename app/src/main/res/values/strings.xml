@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">World Clock</string>
     <string name="search_placeholder">Search city...</string>
+    <string name="add_city_button">add city button</string>
     <string-array name="timezones">
         <item>Asia/Kabul</item>
         <item>Europe/Tirane</item>

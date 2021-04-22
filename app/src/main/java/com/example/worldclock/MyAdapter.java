@@ -35,8 +35,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         isCheckedArr = checkedArr;
     }
 
-    private String extractCity(String timezone)
-    {
+    private String extractCity(String timezone) {
         String s = "";
         for (int i=timezone.indexOf('/')+1;i<timezone.length();i++)
         {
@@ -45,8 +44,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         return s;
     }
 
-    private String getTime(String timezone)
-    {
+    private String getTime(String timezone) {
         String s1 = "";
         String s2 = "";
         int spaceCount = 0;
@@ -96,15 +94,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
-        //city is not checked in other activity
+        //if city is not checked in other activity, then don't show it
         if (!isCheckedArr[position]) {
+            //set width and height of unwanted cardview to 0
+            //if this is not done then, empty space (cards) will be there in recycler view
             holder.rootView.setLayoutParams(holder.params);
             return;
         }
 
         holder.city.setText(extractCity(zones[position]));
 
-        ZoneId fromTimeZone = ZoneId.of("Asia/Karachi");    //Source timezone
+        ZoneId fromTimeZone = ZoneId.of("Asia/Karachi");    //Source/current timezone
         ZoneId toTimeZone = ZoneId.of(zones[position]);  //Target timezone
 
         LocalDateTime today = LocalDateTime.now();          //Current time
@@ -123,6 +123,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         }
 
         if (!flag){
+            //populate views in cardview
             holder.time.setText(getTime(formatter.format(currentETime)));
             holder.date.setText(getDate(formatter.format(currentETime)));
             holder.flag.setImageResource(images.getResourceId(position,0));

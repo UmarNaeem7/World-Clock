@@ -6,36 +6,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> {
-    List<String> zones = new ArrayList<>();
-    List<String> temp;
+public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> implements Filterable{
+    List<String> zones;
+    List<String> completeList;
     Context mContext;
     boolean[] isCheckedArr;
+    ValueFilter valueFilter;
 
     public MyAdapter2(Context c, List<String> cities, boolean[] checkedArr){
         mContext = c;
         zones = cities;
         isCheckedArr = checkedArr;
-        temp = cities;
+        completeList = cities;
     }
 
-    private String extractCity(String timezone)
-    {
+    private String extractCity(String timezone) {
         String s = "";
         for (int i=timezone.indexOf('/')+1;i<timezone.length();i++)
         {
@@ -55,12 +49,16 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.mCheckBox.setText(extractCity(zones.get(position)));
-        holder.mCheckBox.setChecked(isCheckedArr[position]);
-        holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        int index = completeList.indexOf(zones.get(position));
+        if (zones.get(position).equals(completeList.get(position))) //no filter applied
+            holder.mCheckBox.setChecked(isCheckedArr[position]);
+        else    //filter applied so update index instead of position
+            holder.mCheckBox.setChecked(isCheckedArr[index]);
+        holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                Log.d("world clock", "onCheckedChanged: clicked");
-                isCheckedArr[position] = !isCheckedArr[position];
+            public void onClick(View v) {
+                Log.d("World Clock", "onClick: ");
+                isCheckedArr[index] = !isCheckedArr[index];
             }
         });
     }
@@ -70,6 +68,42 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> {
         return zones.size();
     }
 
+    @Override
+    public Filter getFilter() {
+        if (valueFilter == null) {
+            valueFilter = new ValueFilter();
+        }
+        return valueFilter;
+    }
+
+    private class ValueFilter extends Filter{
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults();
+
+            if (constraint != null && constraint.length() > 0) {
+                List<String> filterList = new ArrayList<>();
+                for (int i = 0; i < completeList.size(); i++) {
+                    if ((completeList.get(i).toUpperCase()).contains(constraint.toString().toUpperCase())) {
+                        filterList.add(completeList.get(i));
+                    }
+                }
+                results.count = filterList.size();
+                results.values = filterList;
+            } else {
+                results.count = completeList.size();
+                results.values = completeList;
+            }
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint,
+                                      FilterResults results) {
+            zones = (List<String>) results.values;
+            notifyDataSetChanged();
+        }
+    }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
         CheckBox mCheckBox;
@@ -80,7 +114,5 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> {
             mCheckBox = itemView.findViewById(R.id.checkBox);
             mRecyclerView = itemView.findViewById(R.id.recylerView);
         }
-
     }
-
 }

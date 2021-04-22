@@ -1,8 +1,10 @@
 package com.example.worldclock;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -25,21 +27,22 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d("World clock", "working");
 
-        imagesArr = getResources().obtainTypedArray(R.array.images);
+        imagesArr = getResources().obtainTypedArray(R.array.images);    //get flag images in typed array
 
-        timeZones = getResources().getStringArray(R.array.timezones);
+        timeZones = getResources().getStringArray(R.array.timezones);   //get timezones in string array
         mRecyclerView = findViewById(R.id.availableCitiesRecyclerView);
 
-        isChecked = new boolean[timeZones.length];
+        isChecked = new boolean[timeZones.length];  //boolean array to keep track of checked/unchecked cities
         for (int i=0;i<isChecked.length;i++)
         {
             isChecked[i] = false;
         }
         isChecked[275] = true;
 
+        //save state upon onPause()
         if (savedInstanceState!=null){
+            //reload instance by getting back boolean array from bundle
             isChecked = savedInstanceState.getBooleanArray("exitArr");
         }
 
@@ -48,14 +51,21 @@ public class MainActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openActivity2();
-
+                openActivity2();    //load up next activity
             }
         });
 
-        refreshRecyclerView();
+        refreshRecyclerView();  //set adapter to recycler view
 
-
+        //refresh recycler view upon swipe down
+        final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshRecyclerView();
+                pullToRefresh.setRefreshing(false);
+            }
+        });
     }
 
     public void refreshRecyclerView(){
@@ -76,9 +86,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                Toast.makeText(this,"receiving back",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this,"receiving back",Toast.LENGTH_SHORT).show();
                 isChecked = data.getBooleanArrayExtra("checked1");
-
                 refreshRecyclerView();
             }
         }
@@ -87,6 +96,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBooleanArray("exitArr",isChecked);
+        outState.putBooleanArray("exitArr",isChecked);  //save boolean array by putting in bundle
     }
 }
