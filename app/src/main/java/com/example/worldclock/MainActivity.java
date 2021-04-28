@@ -1,7 +1,6 @@
 package com.example.worldclock;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -11,10 +10,16 @@ import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity {
     String timeZones[];
@@ -22,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton addButton;
     boolean isChecked[];
     TypedArray imagesArr;
+    private static final String FILE_NAME = "example.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +46,9 @@ public class MainActivity extends AppCompatActivity {
         {
             isChecked[i] = false;
         }
-        isChecked[275] = true;
+        //isChecked[275] = true;
+
+        load();
 
         //save state upon onPause()
         if (savedInstanceState!=null){
@@ -100,4 +108,69 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putBooleanArray("exitArr",isChecked);  //save boolean array by putting in bundle
     }
+
+    public void save(){
+
+        FileOutputStream fos = null;
+        try {
+            fos = openFileOutput(FILE_NAME, MODE_PRIVATE);
+            for (boolean b:isChecked) {
+                String s = Boolean.toString(b);
+                s += '\n';
+                fos.write(s.getBytes());
+            }
+            Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME,
+                    Toast.LENGTH_LONG).show();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+
+    public void load(){
+        FileInputStream fis = null;
+        try {
+            fis = openFileInput(FILE_NAME);
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String text;
+            int i = 0;
+            while ((text = br.readLine()) != null) {
+                boolean b = Boolean.parseBoolean(text);
+                Log.d("World Clock", "load: " + b);
+                isChecked[i++] = b;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        save();
+        finish();
+    }
+
+
 }
