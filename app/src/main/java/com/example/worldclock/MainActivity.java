@@ -5,8 +5,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,11 +31,14 @@ public class MainActivity extends AppCompatActivity {
     boolean isChecked[];
     TypedArray imagesArr;
     private static final String FILE_NAME = "example.txt";
+    DBHelper dbHelper = new DBHelper(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
 
         getSupportActionBar().setTitle(R.string.actionbar_title);
 
@@ -48,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
         }
         //isChecked[275] = true;
 
-        load();
+        //loadFromFile();
+        loadFromDB();
 
         //save state upon onPause()
         if (savedInstanceState!=null){
@@ -109,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putBooleanArray("exitArr",isChecked);  //save boolean array by putting in bundle
     }
 
-    public void save(){
+    public void saveToFile(){
 
         FileOutputStream fos = null;
         try {
@@ -137,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void load(){
+    public void loadFromFile(){
         FileInputStream fis = null;
         try {
             fis = openFileInput(FILE_NAME);
@@ -165,12 +172,79 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public boolean existsInDB(int index, SQLiteDatabase db){
+        Cursor cursor = null;
+        String sql ="SELECT * FROM "+ CityContract.CityEntry.TABLE_NAME +" WHERE cityIndex="+index;
+        cursor= db.rawQuery(sql,null);
 
-    @Override
-    public void onBackPressed() {
-        save();
-        finish();
+        //Log.d("WorldClock", "existsInDB: " + cursor.getCount());
+        if(cursor.getCount()>0){
+            cursor.close();
+            return true;
+        }else{
+            cursor.close();
+            return false;
+        }
     }
 
+    public void addtoDB(int index, SQLiteDatabase db){
+        // Create a new map of values, where column names are the keys
+        ContentValues values = new ContentValues();
+        values.put(CityContract.CityEntry.COLUMN_NAME_INDEX, index);
+
+        // Insert the new row, returning the primary key value of the new row
+        long newRowId = db.insert(CityContract.CityEntry.TABLE_NAME, null, values);
+    }
+
+    public void deleteFromDB(int index, SQLiteDatabase db){
+        // Define 'where' part of query.
+        String selection = CityContract.CityEntry.COLUMN_NAME_INDEX + " LIKE ?";
+        // Specify arguments in placeholder order.
+        String[] selectionArgs = { String.valueOf(index) };
+        // Issue SQL statement.
+        int deletedRows = db.delete(CityContract.CityEntry.TABLE_NAME, selection, selectionArgs);
+        Log.d("World Clock", "deleteFromDB: " + deletedRows);
+    }
+
+    public void saveToDB(){
+        // Gets the data repository in write mode
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        for (int i=0;i<isChecked.length;i++) {
+            boolean isFound = existsInDB(i, db);
+
+
+            if (isChecked[i]){
+                if (!isFound){  //if city is checked but it doesn't exist in DB, then add it
+                    addtoDB(i, db);
+                }
+            }
+            else{
+                if (isFound){   //if city is unchecked and it also exists in DB, then delete it
+                    deleteFromDB(i, db);
+                }
+            }
+        }
+        db.close();
+    }
+
+    public void loadFromDB(){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        for (int i=0;i<isChecked.length;i++) {
+            boolean isFound = existsInDB(i, db);
+
+            if (isFound){
+                isChecked[i] = true;
+            }
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        saveToDB();
+        super.onPause();
+    }
 
 }
