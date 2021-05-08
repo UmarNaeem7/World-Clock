@@ -2,15 +2,18 @@ package com.example.worldclock;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +21,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
@@ -25,14 +30,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     Context mContext;
     TypedArray images;
     boolean[] isCheckedArr;
+    boolean selectEnabled;
+    static List<Integer> temp = new ArrayList<>();
     private final String DATE_FORMAT = "dd-M-yyyy hh:mm:ss a z";
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
-    public MyAdapter(Context c, String[] cities, TypedArray img, boolean[] checkedArr){
+    public MyAdapter(Context c, String[] cities, TypedArray img, boolean[] checkedArr, boolean selectActive){
         mContext = c;
         zones = cities;
         images = img;
         isCheckedArr = checkedArr;
+        selectEnabled = selectActive;
+        if (!selectEnabled && !temp.isEmpty()) //clear selections from previous deletion
+            temp.clear();
     }
 
     private String extractCity(String timezone) {
@@ -83,6 +93,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         return s;
     }
 
+    public List<Integer> deleteSelections(){
+        Log.d("World Clock", "deleteSelections: inside");
+        if (temp.isEmpty()){
+            Log.d("World Clock", "deleteSelections: empty list");
+            Toast.makeText(mContext.getApplicationContext(), "No city selected", Toast.LENGTH_LONG).show();
+        }
+        return temp;
+    }
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -103,6 +121,25 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         }
 
         holder.city.setText(extractCity(zones[position]));
+        holder.mCardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!selectEnabled)
+                    return;
+
+                //card is unselected before
+                if (holder.mCardView.getCardBackgroundColor().getDefaultColor()!=Color.BLUE) {
+                    holder.mCardView.setCardBackgroundColor(Color.BLUE);
+                    Log.d("World Clock", "onClick: position = " + position);
+                    temp.add(position);
+                }//card is already selected
+                else {
+                    holder.mCardView.setCardBackgroundColor(Color.parseColor("#ecf0f1"));
+                    temp.remove(temp.indexOf(position));
+                }
+            }
+        });
+
 
         ZoneId fromTimeZone = ZoneId.of("Asia/Karachi");    //Source/current timezone
         ZoneId toTimeZone = ZoneId.of(zones[position]);  //Target timezone
@@ -141,6 +178,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         public ConstraintLayout rootView;
         TextView city, time, date;
         ImageView flag;
+        CardView mCardView;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -149,9 +187,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             time = itemView.findViewById(R.id.Time);
             date = itemView.findViewById(R.id.Date);
             flag = itemView.findViewById(R.id.flagView);
+            mCardView = itemView.findViewById(R.id.CardItem);
 
             params = new FrameLayout.LayoutParams(0,0);
             rootView = itemView.findViewById(R.id.outerLayout);
+
+
         }
     }
 }

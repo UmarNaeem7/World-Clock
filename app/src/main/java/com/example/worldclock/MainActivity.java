@@ -1,18 +1,23 @@
 package com.example.worldclock;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.example.worldclock.MyAdapter;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -20,7 +25,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     String[] timeZones;
@@ -28,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton addButton;
     boolean[] isChecked;
     TypedArray imagesArr;
+    boolean selectActive = false;
     private SwipeRefreshLayout pullToRefresh;
     private static final String FILE_NAME = "example.txt";
     DBHelper dbHelper = new DBHelper(this);
@@ -53,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshRecyclerView();
+                refreshRecyclerView(false);
                 pullToRefresh.setRefreshing(false);
             }
         });
@@ -73,11 +81,43 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        refreshRecyclerView();  //set adapter to recycler view
+        refreshRecyclerView(false);  //set adapter to recycler view
     }
 
-    public void refreshRecyclerView(){
-        MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.context_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.option_menu:
+                Log.d("World Clock", "onOptionsItemSelected: select cities");
+                refreshRecyclerView(true);
+                break;
+            case R.id.delete_option:
+                Log.d("World Clock", "onOptionsItemSelected: delete selections");
+                MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked, true);
+                List<Integer> temp = new ArrayList<>();
+                temp = myAdapter.deleteSelections();
+                for (Integer i:temp){
+                    Log.d("World Clock", "onOptionsItemSelected: i = " + i);
+                    isChecked[i] = false;
+                }
+                refreshRecyclerView(false);
+            default:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void refreshRecyclerView(boolean enabledSelection){
+        MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked, enabledSelection);
         mRecyclerView.setAdapter(myAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -96,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK) {
                 //Toast.makeText(this,"receiving back",Toast.LENGTH_SHORT).show();
                 isChecked = data.getBooleanArrayExtra("checked1");
-                refreshRecyclerView();
+                refreshRecyclerView(false);
             }
         }
     }
