@@ -1,6 +1,5 @@
 package com.example.worldclock;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.example.worldclock.MyAdapter;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -25,7 +23,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton addButton;
     boolean[] isChecked;
     TypedArray imagesArr;
-    boolean selectActive = false;
     private SwipeRefreshLayout pullToRefresh;
     private static final String FILE_NAME = "example.txt";
     DBHelper dbHelper = new DBHelper(this);
@@ -100,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.delete_option:
                 MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked, true);
-                List<Integer> temp = new ArrayList<>();
+                List<Integer> temp;
                 temp = myAdapter.deleteSelections();
                 for (Integer i:temp){
                     isChecked[i] = false;
