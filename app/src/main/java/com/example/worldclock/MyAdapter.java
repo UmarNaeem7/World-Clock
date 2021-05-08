@@ -96,7 +96,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public List<Integer> deleteSelections(){
         Log.d("World Clock", "deleteSelections: inside");
         if (temp.isEmpty()){
-            Log.d("World Clock", "deleteSelections: empty list");
             Toast.makeText(mContext.getApplicationContext(), "No city selected", Toast.LENGTH_LONG).show();
         }
         return temp;

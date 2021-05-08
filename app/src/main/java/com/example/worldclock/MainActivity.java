@@ -96,16 +96,13 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id){
             case R.id.option_menu:
-                Log.d("World Clock", "onOptionsItemSelected: select cities");
                 refreshRecyclerView(true);
                 break;
             case R.id.delete_option:
-                Log.d("World Clock", "onOptionsItemSelected: delete selections");
                 MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked, true);
                 List<Integer> temp = new ArrayList<>();
                 temp = myAdapter.deleteSelections();
                 for (Integer i:temp){
-                    Log.d("World Clock", "onOptionsItemSelected: i = " + i);
                     isChecked[i] = false;
                 }
                 refreshRecyclerView(false);
@@ -134,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if(resultCode == RESULT_OK) {
-                //Toast.makeText(this,"receiving back",Toast.LENGTH_SHORT).show();
                 isChecked = data.getBooleanArrayExtra("checked1");
                 refreshRecyclerView(false);
             }
