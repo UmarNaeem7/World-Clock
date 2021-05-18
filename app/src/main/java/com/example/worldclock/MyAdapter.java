@@ -47,8 +47,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
     private String extractCity(String timezone) {
         String s = "";
-        for (int i=timezone.indexOf('/')+1;i<timezone.length();i++)
+        for (int i=timezone.lastIndexOf('/')+1;i<timezone.length();i++)
         {
+            if (timezone.charAt(i)=='_'){
+                s += " ";
+                continue;
+            }
             s += timezone.charAt(i);
         }
         return s;
