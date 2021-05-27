@@ -1,21 +1,14 @@
 package com.example.worldclock;
 
-import androidx.annotation.NonNull;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.SearchView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.SearchView;
-import android.widget.Toast;
-
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +35,12 @@ public class MainActivity2 extends AppCompatActivity{
         Bundle bundle = this.getIntent().getExtras();   //get boolean array that was passed by previous activity
         isChecked = bundle.getBooleanArray("checked");
 
+        //save state upon onPause()
+        if (savedInstanceState!=null){
+            //reload instance by getting back boolean array from bundle
+            isChecked = savedInstanceState.getBooleanArray("exitArr2");
+        }
+
         myAdapter2 = new MyAdapter2(this, timeZones, isChecked);
         mRecyclerView.setAdapter(myAdapter2);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -62,6 +61,13 @@ public class MainActivity2 extends AppCompatActivity{
                 return false;
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        isChecked = myAdapter2.getIsCheckedArr();
+        super.onSaveInstanceState(outState);
+        outState.putBooleanArray("exitArr2",isChecked);  //save boolean array by putting in bundle
     }
 
     @Override

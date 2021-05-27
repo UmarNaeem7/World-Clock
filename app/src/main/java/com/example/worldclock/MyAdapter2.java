@@ -38,6 +38,10 @@ public class MyAdapter2 extends RecyclerView.Adapter<MyAdapter2.MyViewHolder> im
         return s;
     }
 
+    public boolean[] getIsCheckedArr() {
+        return isCheckedArr;
+    }
+
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
