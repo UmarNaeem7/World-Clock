@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeRefreshLayout pullToRefresh;
     private static final String FILE_NAME = "example.txt";
     DBHelper dbHelper = new DBHelper(this);
+    boolean selectionEnabled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,31 @@ public class MainActivity extends AppCompatActivity {
         });
 
         refreshRecyclerView(false);  //set adapter to recycler view
+
+        updateUIEverySec();
+    }
+
+    private void updateUIEverySec(){
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                        try {
+                            while (!this.isInterrupted()) {
+                                if (!selectionEnabled)
+                                    Thread.sleep(1000);
+                                else
+                                    Thread.sleep(1000000);  //allow selection/deletion with peace
+                                runOnUiThread(() -> {
+                                    refreshRecyclerView(true);
+                                });
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            Log.i("TAG", e.getMessage());
+                        }
+                    }
+            };
+            thread.start();
     }
 
     @Override
@@ -92,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch (id){
             case R.id.option_menu:
-                refreshRecyclerView(true);
+                selectionEnabled = true;
+                refreshRecyclerView(selectionEnabled);
                 break;
             case R.id.delete_option:
                 MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked, true);
@@ -101,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 for (Integer i:temp){
                     isChecked[i] = false;
                 }
-                refreshRecyclerView(false);
+                selectionEnabled = false;
+                refreshRecyclerView(selectionEnabled);
+                updateUIEverySec();
             default:
                 break;
         }
