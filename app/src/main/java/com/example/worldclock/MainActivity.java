@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     String[] timeZones;
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getSupportActionBar().setTitle(R.string.actionbar_title);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(R.string.actionbar_title);
 
         imagesArr = getResources().obtainTypedArray(R.array.images);    //get flag images in typed array
 
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             while (!this.isInterrupted()) {
                                 if (!selectionEnabled)
-                                    Thread.sleep(1000);
+                                    Thread.sleep(10000);
                                 else
                                     Thread.sleep(1000000);  //allow selection/deletion with peace
                                 runOnUiThread(() -> {
@@ -120,6 +121,10 @@ public class MainActivity extends AppCompatActivity {
             case R.id.option_menu:
                 selectionEnabled = true;
                 refreshRecyclerView(selectionEnabled);
+                break;
+            case R.id.API_Activity:
+                Intent intent = new Intent(this,APIActivity.class);
+                startActivity(intent);
                 break;
             case R.id.delete_option:
                 MyAdapter myAdapter = new MyAdapter(this, timeZones, imagesArr, isChecked, true);

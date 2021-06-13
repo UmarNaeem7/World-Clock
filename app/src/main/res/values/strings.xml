@@ -6,6 +6,11 @@
     <string name="add_city_button">add city button</string>
     <string name="select_option">Select cities</string>
     <string name="delete_selections">delete selections</string>
+    <string name="live_api_results">Live API Results</string>
+    <string name="loading_data">Loading Data...</string>
+    <string name="_0_of_297_loaded">0 of 297 loaded</string>
+    <string name="city">City</string>
+    <string name="time">time</string>
     <string-array name="timezones">
         <item>Asia/Kabul</item>
         <item>Europe/Tirane</item>

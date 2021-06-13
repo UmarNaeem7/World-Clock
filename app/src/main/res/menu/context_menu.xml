@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/option_menu"
         android:title="@string/select_option" />
+    <item android:id="@+id/API_Activity" android:title="@string/live_api_results" />
     <item android:id="@+id/delete_option"
         android:title="@string/delete_selections"
         android:icon="@drawable/ic_delete"

@@ -194,8 +194,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
             params = new FrameLayout.LayoutParams(0,0);
             rootView = itemView.findViewById(R.id.outerLayout);
-
-
         }
     }
 }
