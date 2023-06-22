@@ -8,4 +8,4 @@ The app has 2 screens i.e.
 
 2. The main activity that shows all the selected cities in a card view.
 
-![](ss2.jpg)
+<img src="ss2.jpg" alt="Image" height="500">
